@@ -146,21 +146,21 @@
                 <label>Prompt</label>
                 ${copybutton}
             </div>
-            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #aaaa; border: 0px none; margin: 10px 0;">${positive}</textarea>
+            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #cccc; border: 0px none; margin: 10px 0;">${positive}</textarea>
         </div>
         <div>
             <div style="display:flex; justify-content: space-between;">
                 <label>Negative Prompt</label>
                 ${copybutton}
             </div>
-            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #aaaa; border: 0px none; margin: 10px 0;">${negative}</textarea>
+            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #cccc; border: 0px none; margin: 10px 0;">${negative}</textarea>
         </div>
         <div>
             <div style="display:flex; justify-content: space-between;">
                 <label>Other info</label>
                 ${copybutton}
             </div>
-            <textarea rows="3" style="display: block; width: 774px;  max-width: 100%;background: #aaaa; border: 0px none; margin: 10px 0;">${others}</textarea>
+            <textarea rows="3" style="display: block; width: 774px;  max-width: 100%;background: #cccc; border: 0px none; margin: 10px 0;">${others}</textarea>
         </div>
     </div>
 </div>`;
