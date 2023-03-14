@@ -21,8 +21,10 @@ PNG, JPG, JPEGに対応しています。
 ※copyボタンはブラウザAPIの制約上httpsのサイトでのみ使用できます。
 
 ## Change history
+- 0.2.1 2023-03-14
+  * Update styles
 - 0.2.0 2023-03-14
-  * Add support WebP file format.
+  * Add support WebP file format
 - 0.1.2 2023-02-11
   * Fix jpg file view
   * Add support NMKD generated files
@@ -31,6 +33,8 @@ PNG, JPG, JPEGに対応しています。
   * Change style for mobile
 
 ## 更新履歴
+- 0.2.1 2023-03-14
+  * スタイルを更新
 - 0.2.0 2023-03-14
   * webpファイル形式に対応
 - 0.1.2 2023-02-11
