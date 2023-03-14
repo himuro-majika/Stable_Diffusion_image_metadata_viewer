@@ -1,20 +1,20 @@
 # Stable Diffusion image metadata viewer
 
 ## Description
-Show StableDiffusion generated image's metadata in .png .jpg .jpeg file tabs.
+Show StableDiffusion generated image's metadata in .png .jpg .jpeg .webp file tabs.
 
 ## 説明
 StableDiffusionで生成された画像の埋め込みメタデータを表示します。
-PNG, JPG, JPEGに対応しています。
+.png, .jpg, .jpeg .webpに対応しています。
 
 ## Usage
-- Open PNG or JPG files tab
+- Open PNG or JPG or WebP files tab
 - When StableDiffusion metadata found, "Show SD metadata" button appear
 - Show positive prompt, negative prompt and other info in metadata window
 - To copy to clipboard, click copy button(https pages only)
 
 ## 使い方
-- PNGファイルまたはJPGファイルのタブを開きます
+- PNGファイルまたはJPGまたはWebPファイルのタブを開きます
 - Stable Diffusionの埋め込みメタデータが見つかると"Show SD metadata"ボタンが表示されます
 - ボタンをクリックするとpositiveプロンプト、negativeプロンプト、その他の情報が個別に表示されます
 - "copy"ボタンをクリックするとそれぞれの情報をクリップボードにコピーします  
