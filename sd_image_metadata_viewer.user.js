@@ -25,34 +25,17 @@
     'use strict';
 
     const img = document.images[0];
-    if (!img) return;
+    if (img) readExif(img);
 
-    readExif(img);
-
-    function readExif(img) {
-        ExifReader.load(img.src).then(function (tags) {
-            // console.dir(tags);
-            const com = getComment(tags);
-            if (!com) {
-                getImgData(img);
-                return;
-            }
-            makeButton();
-            makeData(com);
-        }).catch(function (error) {
-            getImgData(img);
-            console.log(error);
-        });
-    }
-
-    async function getImgData(img) {
-        const imgtext = (await(await fetch(img.src)).text());
-        // console.log(imgtext);
-        const text = imgtext.match(/(?<=Xt(?:parameters|Description|Comment|Dream)\0*)([^\0]+)/ug);
-        if (!text) return;
-        console.log(text);
+    async function readExif(img) {
+        const fileBuffer = await fetch(img.src).then(response => response.arrayBuffer()).catch(() => {return;});
+        if (!fileBuffer) return;
+        const tags = ExifReader.load(fileBuffer);
+        // console.dir(tags);
+        const com = getComment(tags);
+        if (!com) return;
         makeButton();
-        makeData(text.join(""));
+        makeData(com);
     }
 
     function getComment(tags) {
@@ -67,6 +50,7 @@
 
         let com = ""
 
+        // Exif
         if (tags["Exif IFD Pointer"] &&
             tags["UserComment"] &&
             tags["UserComment"].description == "[Unicode encoded text]") {
@@ -74,6 +58,7 @@
             return com;
         }
 
+        // iTXt
         if (tags["Description"]) {
             com += tags["Description"].description;
             delete tags["Description"];
