@@ -21,6 +21,9 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
 ※copyボタンはブラウザAPIの制約上httpsのサイトでのみ使用できます。
 
 ## Change history
+- 0.2.2 2023-03-31
+  * Fix issue for loading local jpg file using Firefox
+  * Better support for NAI
 - 0.2.1 2023-03-14
   * Update styles
 - 0.2.0 2023-03-14
@@ -33,6 +36,9 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
   * Change style for mobile
 
 ## 更新履歴
+- 0.2.2 2023-03-31
+  * Firefoxでローカルのjpgファイルの読み込み時の問題を修正
+  * NAIで生成されたファイルの表示を改善
 - 0.2.1 2023-03-14
   * スタイルを更新
 - 0.2.0 2023-03-14
