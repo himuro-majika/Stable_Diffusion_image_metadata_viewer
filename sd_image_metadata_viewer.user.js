@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stable Diffusion image metadata viewer
 // @namespace    https://github.com/himuro-majika
-// @version      0.2.1
+// @version      0.2.2
 // @description  Show Stable Diffusion generated image's metadata
 // @author       himuro_majika
 // @match        http://*/*.png
