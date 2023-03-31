@@ -31,11 +31,7 @@
         const fileBuffer = await fetch(img.src).then(response => response.arrayBuffer()).catch(() => {return;});
         if (!fileBuffer) return;
         const tags = ExifReader.load(fileBuffer);
-        // console.dir(tags);
-        const com = getComment(tags);
-        if (!com) return;
-        makeButton();
-        makeData(com);
+        getComment(tags);
     }
 
     function getComment(tags) {
@@ -47,6 +43,7 @@
         delete tags["Image Height"];
         delete tags["Image Width"];
         delete tags["Interlace"];
+        // console.dir(JSON.parse(JSON.stringify(tags)));
 
         let com = ""
 
@@ -55,37 +52,43 @@
             tags["UserComment"] &&
             tags["UserComment"].description == "[Unicode encoded text]") {
             com = decodeUnicode(tags["UserComment"].value);
-            return com;
+            extractPrompt(com);
+            return;
         }
 
         // iTXt
-        if (tags["Description"]) {
-            com += tags["Description"].description;
-            delete tags["Description"];
+        // A1111
+        if (tags["parameters"]) {
+            com += tags["parameters"].description;
+            extractPrompt(com);
+            return;
         }
-        if (tags["Comment"]) {
-            com += tags["Comment"].description.replaceAll(/\\u00a0/g, " ");
-            delete tags["Comment"];
-        }
-        if (tags["Title"]) {
-            com += tags["Title"].description;
-            delete tags["Title"];
-        }
-        if (tags["Source"]) {
-            com += tags["Source"].description;
-            delete tags["Source"];
-        }
-        if (tags["Software"]) {
-            com += tags["Software"].description;
-            delete tags["Software"];
+
+        // NAI
+        if (tags["Software"] && tags["Software"].description == "NovelAI") {
+            const positive = tags["Description"].description;
+            const negative = tags["Comment"].description.replaceAll(/\\u00a0/g, " ").match(/"uc": "([^]+)"[,}]/)[1];
+            let others = tags["Comment"].description.replaceAll(/\\u00a0/g, " ") + "\r\n";
+            others += tags["Software"].description + "\r\n";
+            others += tags["Title"].description + "\r\n";
+            others += tags["Source"].description;
+            const prompt = {
+                positive: positive,
+                negative: negative,
+                others: others
+            }
+            makeButton();
+            makeData(prompt);
+            return;
         }
 
         Object.keys(tags).forEach(tag => {
             com += tags[tag].description;
         });
 
-        console.log(com);
-        return com;
+        // console.log(com);
+        extractPrompt(com);
+        return;
     }
 
     function decodeUnicode(array) {
@@ -103,6 +106,20 @@
         return decode;
     }
 
+    function extractPrompt(com) {
+        const positive = extractPositivePrompt(com);
+        const negative = extractNegativePrompt(com);
+        const others = extractOthers(com);
+        if (!positive && !negative && !others) return;
+        const prompt = {
+            positive: positive,
+            negative: negative,
+            others: others
+        }
+        makeButton();
+        makeData(prompt);
+    }
+
     function makeButton() {
         const button = document.createElement("button");
         button.innerHTML = "Show SD metadata";
@@ -110,10 +127,10 @@
         document.body.insertBefore(button, img);
     }
 
-    function makeData(text) {
-        const positive = extractPositivePrompt(text);
-        const negative = extractNegativePrompt(text);
-        const others = extractOthers(text);
+    function makeData(prompt) {
+        const positive = prompt.positive;
+        const negative = prompt.negative;
+        const others = prompt.others;
         const container = document.createElement("div");
         container.id ="_gm_sipv_container";
         container.style.display = "none";
