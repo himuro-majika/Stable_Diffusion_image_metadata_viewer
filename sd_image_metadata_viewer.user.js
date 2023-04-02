@@ -25,53 +25,50 @@
     'use strict';
 
     const img = document.images[0];
-    if (img) readExif(img);
+    if (!img) return;
+    readExif(img);
 
     async function readExif(img) {
         const fileBuffer = await fetch(img.src).then(response => response.arrayBuffer()).catch(() => {return;});
         if (!fileBuffer) return;
-        const tags = ExifReader.load(fileBuffer);
+        const tags = ExifReader.load(fileBuffer, {expanded: true});
         getComment(tags);
     }
 
     function getComment(tags) {
-        delete tags["MakerNote"];
-        delete tags["Bit Depth"];
-        delete tags["Color Type"];
-        delete tags["Compression"];
-        delete tags["Filter"];
-        delete tags["Image Height"];
-        delete tags["Image Width"];
-        delete tags["Interlace"];
         // console.dir(JSON.parse(JSON.stringify(tags)));
 
         let com = ""
 
         // Exif
-        if (tags["Exif IFD Pointer"] &&
-            tags["UserComment"] &&
-            tags["UserComment"].description == "[Unicode encoded text]") {
-            com = decodeUnicode(tags["UserComment"].value);
+        if (tags.exif && tags.exif.UserComment) {
+            com = decodeUnicode(tags.exif.UserComment.value);
             extractPrompt(com);
             return;
         }
-
         // iTXt
+        if (!tags.pngText) return;
         // A1111
-        if (tags["parameters"]) {
-            com += tags["parameters"].description;
+        if (tags.pngText.parameters) {
+            com = tags.pngText.parameters.description;
             extractPrompt(com);
             return;
         }
-
+        // NMKD
+        if (tags.pngText.Dream) {
+            com = tags.pngText.Dream.description;
+            com += tags.pngText["sd-metadata"] ? "\r\n" + tags.pngText["sd-metadata"].description : "";
+            extractPrompt(com);
+            return;
+        }
         // NAI
-        if (tags["Software"] && tags["Software"].description == "NovelAI") {
-            const positive = tags["Description"].description;
-            const negative = tags["Comment"].description.replaceAll(/\\u00a0/g, " ").match(/"uc": "([^]+)"[,}]/)[1];
-            let others = tags["Comment"].description.replaceAll(/\\u00a0/g, " ") + "\r\n";
-            others += tags["Software"].description + "\r\n";
-            others += tags["Title"].description + "\r\n";
-            others += tags["Source"].description;
+        if (tags.pngText.Software && tags.pngText.Software.description == "NovelAI") {
+            const positive = tags.pngText.Description.description;
+            const negative = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ").match(/"uc": "([^]+)"[,}]/)[1];
+            let others = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ") + "\r\n";
+            others += tags.pngText.Software.description + "\r\n";
+            others += tags.pngText.Title.description + "\r\n";
+            others += tags.pngText.Source.description;
             const prompt = {
                 positive: positive,
                 negative: negative,
@@ -82,8 +79,8 @@
             return;
         }
 
-        Object.keys(tags).forEach(tag => {
-            com += tags[tag].description;
+        Object.keys(tags.pngText).forEach(tag => {
+            com += tags.pngText[tag].description;
         });
 
         // console.log(com);
