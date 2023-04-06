@@ -3,6 +3,16 @@
 // @namespace    https://github.com/himuro-majika
 // @version      0.2.3
 // @description  Show Stable Diffusion generated image's metadata
+// @description:ja      Stable Diffusionで生成された画像の埋め込みメタデータを表示します
+// @description:ko      표시 Stable Diffusion 생성된 이미지의 메타데이터
+// @description:de      Metadaten des durch Stabile Diffusion erzeugten Bildes anzeigen
+// @description:es      Mostrar los metadatos de la imagen generada por Stable Diffusion
+// @description:fr      Afficher les métadonnées de l'image générée par la Stable Diffusion
+// @description:it      Mostrare i metadati dell'immagine generata da Stable Diffusion
+// @description:zh-CN   显示 Stable Diffusion 生成的图像的元数据
+// @description:zh-SG   显示 Stable Diffusion 生成的图像的元数据
+// @description:zh-TW   顯示 Stable Diffusion 生成圖像的元數據
+// @description:zh-HK   顯示 Stable Diffusion 生成圖像的元數據
 // @author       himuro_majika
 // @match        http://*/*.png
 // @match        http://*/*.jpg
