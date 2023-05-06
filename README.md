@@ -53,3 +53,8 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
 - 0.1.1 2023-02-11
   * 画像の拡張子の判定を修正(thanks jyyhyy)
   * モバイル向けにスタイルを修正
+
+## Credits
+Stable Diffusion image metadata viewer uses follwing libraries:
+- ExifReader (MPL-2.0)
+[https://github.com/mattiasw/ExifReader](https://github.com/mattiasw/ExifReader)
