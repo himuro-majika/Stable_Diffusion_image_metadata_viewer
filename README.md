@@ -21,6 +21,8 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
 ※copyボタンはブラウザAPIの制約上httpsのサイトでのみ使用できます。
 
 ## Change history
+- 0.2.4 2023-05-12
+  * Fix issue images not loading on sites with Content-Security-Policy(thanks 青龙圣者)
 - 0.2.3 2023-04-02
   * Exclude unnesesary JFIF tags
 - 0.2.2 2023-03-31
@@ -38,6 +40,8 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
   * Change style for mobile
 
 ## 更新履歴
+- 0.2.4 2023-05-12
+  * コンテンツセキュリティポリシーが設定されているサイトで画像が読み込めない問題を修正(thanks 青龙圣者)
 - 0.2.3 2023-04-02
   * 不要なJFIFタグを除外
 - 0.2.2 2023-03-31
@@ -54,7 +58,7 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
   * 画像の拡張子の判定を修正(thanks jyyhyy)
   * モバイル向けにスタイルを修正
 
-## Credits
-Stable Diffusion image metadata viewer uses follwing libraries:
-- ExifReader (MPL-2.0)
+## License
+Stable Diffusion image metadata viewer uses following libraries:
+- ExifReader (MPL-2.0)  
 [https://github.com/mattiasw/ExifReader](https://github.com/mattiasw/ExifReader)
