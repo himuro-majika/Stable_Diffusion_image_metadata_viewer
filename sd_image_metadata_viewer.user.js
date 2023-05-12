@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stable Diffusion image metadata viewer
 // @namespace    https://github.com/himuro-majika
-// @version      0.2.3
+// @version      0.2.4
 // @description  Show Stable Diffusion generated image's metadata
 // @description:ja      Stable Diffusionで生成された画像の埋め込みメタデータを表示します
 // @description:ko      표시 Stable Diffusion 생성된 이미지의 메타데이터
