@@ -28,7 +28,8 @@
 // @match        file:///*.webp
 // @require      https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.min.js
 // @license      MIT
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @grant        GM_addElement
 // ==/UserScript==
 
 (function() {
@@ -38,11 +39,32 @@
     if (!img) return;
     readExif(img);
 
-    async function readExif(img) {
-        const fileBuffer = await fetch(img.src).then(response => response.arrayBuffer()).catch(() => {return;});
-        if (!fileBuffer) return;
-        const tags = ExifReader.load(fileBuffer, {expanded: true});
-        getComment(tags);
+    function readExif(img) {
+        fetch(img.src).then((response) => response.arrayBuffer())
+        .then((fileBuffer) => loadTags(fileBuffer))
+        .catch(() => {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: img.src,
+                responseType: "arraybuffer",
+                onload: (res) => {
+                    loadTags(res.response);
+                },
+                onerror: (e) => {
+                    console.log(e);
+                    return;
+                }
+            });
+        });
+        function loadTags(fileBuffer) {
+            if (!fileBuffer) return;
+            try {
+                const tags = ExifReader.load(fileBuffer, {expanded: true});
+                getComment(tags);
+            } catch(e) {
+                console.log(e);
+            }
+        }
     }
 
     function getComment(tags) {
@@ -84,7 +106,6 @@
                 negative: negative,
                 others: others
             }
-            makeButton();
             makeData(prompt);
             return;
         }
@@ -123,61 +144,95 @@
             negative: negative,
             others: others
         }
-        makeButton();
         makeData(prompt);
     }
 
     function makeButton() {
+        addStyle();
         const button = document.createElement("button");
+        button.id = "_gm_simv_open_button";
         button.innerHTML = "Show SD metadata";
         button.addEventListener("click", showModal);
         document.body.insertBefore(button, img);
     }
 
     function makeData(prompt) {
+        makeButton();
         const positive = prompt.positive;
         const negative = prompt.negative;
         const others = prompt.others;
         const container = document.createElement("div");
-        container.id ="_gm_sipv_container";
-        container.style.display = "none";
-        container.style.width = "100%";
-        const copybutton = location.protocol == "http:" ? "" : `<button class="_gm_sipv_copybutton" type="button" style="cursor: pointer; opacity: 0.5;">copy</button>`;
+        container.id ="_gm_simv_container";
+        const copybutton = location.protocol == "http:" ? "" : `<button class="_gm_simv_copybutton" type="button">copy</button>`;
         container.innerHTML = `
-<div style="color: #eee; width: 800px; max-width: 100%; margin-left: auto; margin-right: auto; z-index: 2; position: fixed; inset: auto 0; margin: auto; background: #000a; border-radius: 6px; box-shadow: #000 0px 0px 2px;">
-    <div style="display:flex; justify-content: space-between; padding: 0px 10px;">
+<div class="_gm_simv_modal">
+    <div class="_gm_simv_modal_title">
         <h5>Stable Diffusion image metadata</h5>
-        <button id="_gm_sipv_closebutton" type="button" style="cursor: pointer; height: 4em; opacity: 0.5; padding: 1em; background: #0000; border: 0; width: 3em;">❎</button>
+        <button id="_gm_simv_closebutton" type="button">❎</button>
     </div>
-    <div style="padding: 10px;">
+    <div class="_gm_simv_modal_body">
         <div>
-            <div style="display:flex; justify-content: space-between;">
+            <div class="_gm_simv_section">
                 <label>Prompt</label>
                 ${copybutton}
             </div>
-            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #cccc; border: 0px none; margin: 10px 0;">${positive}</textarea>
+            <textarea rows="6">${positive}</textarea>
         </div>
         <div>
-            <div style="display:flex; justify-content: space-between;">
+            <div class="_gm_simv_section">
                 <label>Negative Prompt</label>
                 ${copybutton}
             </div>
-            <textarea rows="6" style="display: block; width: 774px; max-width: 100%; background: #cccc; border: 0px none; margin: 10px 0;">${negative}</textarea>
+            <textarea rows="6">${negative}</textarea>
         </div>
         <div>
-            <div style="display:flex; justify-content: space-between;">
+            <div class="_gm_simv_section">
                 <label>Other info</label>
                 ${copybutton}
             </div>
-            <textarea rows="3" style="display: block; width: 774px;  max-width: 100%;background: #cccc; border: 0px none; margin: 10px 0;">${others}</textarea>
+            <textarea rows="3">${others}</textarea>
         </div>
     </div>
 </div>`;
         document.body.insertBefore(container, img);
-        document.getElementById("_gm_sipv_closebutton").addEventListener("click", closeModal);
-        document.querySelectorAll("._gm_sipv_copybutton").forEach(item => {
+        document.getElementById("_gm_simv_closebutton").addEventListener("click", closeModal);
+        document.querySelectorAll("._gm_simv_copybutton").forEach(item => {
             item.addEventListener("click", copyText);
         });
+    }
+
+    function addStyle() {
+        GM_addElement("style", { textContent: `
+img {
+    display: block; margin: auto;
+}
+#_gm_simv_open_button {
+    position: absolute;
+}
+#_gm_simv_container {
+    display: none; width: 100%;
+}
+._gm_simv_modal {
+    color: #eee; width: 800px; max-width: 100%; margin-left: auto; margin-right: auto; z-index: 2; position: fixed; inset: auto 0; margin: auto; background: #000a; border-radius: 6px; box-shadow: #000 0px 0px 2px;
+}
+._gm_simv_modal_title {
+    display:flex; justify-content: space-between; padding: 0px 10px;
+}
+._gm_simv_modal_body {
+    padding: 10px;
+}
+#_gm_simv_closebutton {
+    cursor: pointer; height: 4em; opacity: 0.5; padding: 1em; background: #0000; border: 0; width: 3em;
+}
+._gm_simv_section {
+    display:flex; justify-content: space-between;
+}
+._gm_simv_modal textarea {
+    display: block; width: 774px; max-width: 100%; background: #cccc; border: 0px none; margin: 10px 0;
+}
+._gm_simv_copybutton {
+    cursor: pointer; opacity: 0.5;
+}`});
     }
 
     function extractPositivePrompt(text) {
@@ -221,11 +276,11 @@
     }
 
     function showModal() {
-        document.getElementById("_gm_sipv_container").style.display = "block";
+        document.getElementById("_gm_simv_container").style.display = "block";
     }
 
     function closeModal() {
-        document.getElementById("_gm_sipv_container").style.display = "none";
+        document.getElementById("_gm_simv_container").style.display = "none";
     }
 
     function copyText() {
