@@ -96,11 +96,14 @@
         // NAI
         if (tags.pngText.Software && tags.pngText.Software.description == "NovelAI") {
             const positive = tags.pngText.Description.description;
-            const negative = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ").match(/"uc": "([^]+)"[,}]/)[1];
-            let others = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ") + "\r\n";
+            const comment = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ");
+            const negative= JSON.parse(comment).uc;
+            console.dir(JSON.parse(comment));
+            let others = comment + "\r\n";
             others += tags.pngText.Software.description + "\r\n";
             others += tags.pngText.Title.description + "\r\n";
             others += tags.pngText.Source.description;
+            others += tags.pngText["Generation time"] ? "\r\n" + "Generation time: " + tags.pngText["Generation time"].description : "";
             const prompt = {
                 positive: positive,
                 negative: negative,
