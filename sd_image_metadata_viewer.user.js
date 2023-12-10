@@ -242,9 +242,9 @@ img {
         try {
             let matchtext = 
             text.match(/([^]+)Negative prompt: /) || 
+            text.match(/([^]+?)\[[^[]+\]/) || 
             text.match(/([^]+)Steps: /) || 
-            text.match(/([^]+){"steps"/) || 
-            text.match(/([^]+)\[[^[]+\]/);
+            text.match(/([^]+){"steps"/);
             return matchtext[1];
         } catch (e) {
             console.log(text);
@@ -257,7 +257,7 @@ img {
             let matchtext = 
             text.match(/Negative prompt: ([^]+)Steps: /) || 
             text.match(/"uc": "([^]+)"}/) || 
-            text.match(/\[([^[]+)\]/);
+            text.match(/\[([^[]+?)(\]|Steps: )/);
             return matchtext[1];
         } catch (e) {
             console.log(text);
