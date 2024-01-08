@@ -122,15 +122,14 @@
             return prompt;
         }
         // NAI
-        if (tags.pngText.Software && tags.pngText.Software.description == "NovelAI") {
-            const positive = tags.pngText.Description.description;
+        if (tags.pngText.Comment) {
             const comment = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ");
+            const positive = tags.pngText.Description ? tags.pngText.Description.description : JSON.parse(comment).prompt;
             const negative= JSON.parse(comment).uc;
-            // console.dir(JSON.parse(comment));
             let others = comment + "\r\n";
-            others += tags.pngText.Software.description + "\r\n";
-            others += tags.pngText.Title.description + "\r\n";
-            others += tags.pngText.Source.description;
+            others += tags.pngText.Software ? tags.pngText.Software.description + "\r\n" : "";
+            others += tags.pngText.Title ? tags.pngText.Title.description + "\r\n" : "";
+            others += tags.pngText.Source ? tags.pngText.Source.description : "";
             others += tags.pngText["Generation time"] ? "\r\nGeneration time: " + tags.pngText["Generation time"].description : "";
             prompt.positive = positive;
             prompt.negative = negative;
