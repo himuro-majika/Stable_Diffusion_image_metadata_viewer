@@ -21,6 +21,10 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
 ※copyボタンはブラウザAPIの制約上httpsのサイトでのみ使用できます。
 
 ## Change history
+- 0.2.5 2024-01-08
+  * Fix for NAIv3
+  * Fix for NMKD
+  * Change layout
 - 0.2.4 2023-05-12
   * Fix issue images not loading on sites with Content-Security-Policy(thanks 青龙圣者)
 - 0.2.3 2023-04-02
@@ -40,6 +44,10 @@ StableDiffusionで生成された画像の埋め込みメタデータを表示�
   * Change style for mobile
 
 ## 更新履歴
+- 0.2.5 2024-01-08
+  * NAIv3の表示を修正
+  * NMKDの表示を修正
+  * レイアウトを変更
 - 0.2.4 2023-05-12
   * コンテンツセキュリティポリシーが設定されているサイトで画像が読み込めない問題を修正(thanks 青龙圣者)
 - 0.2.3 2023-04-02
