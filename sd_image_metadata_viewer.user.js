@@ -206,7 +206,7 @@
                 <label>Other info</label>
                 ${copybutton}
             </div>
-            <textarea rows="3">${others}</textarea>
+            <textarea rows="6">${others}</textarea>
         </div>
     </div>
 </div>`;
