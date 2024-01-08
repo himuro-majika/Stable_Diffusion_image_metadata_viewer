@@ -26,7 +26,7 @@
 // @match        file:///*.jpg
 // @match        file:///*.jpeg
 // @match        file:///*.webp
-// @require      https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.min.js
+// @require      https://cdn.jsdelivr.net/npm/exifreader@4.20.0/dist/exif-reader.min.js
 // @license      MIT
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addElement
