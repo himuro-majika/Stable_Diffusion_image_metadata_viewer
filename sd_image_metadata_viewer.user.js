@@ -37,15 +37,15 @@
 
     const img = document.images[0];
     if (!img) return;
-    readExif(img);
+    readExif(img.src);
 
-    function readExif(img) {
-        fetch(img.src).then((response) => response.arrayBuffer())
+    function readExif(url) {
+        fetch(url).then((response) => response.arrayBuffer())
         .then((fileBuffer) => loadTags(fileBuffer))
         .catch(() => {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: img.src,
+                url: url,
                 responseType: "arraybuffer",
                 onload: (res) => {
                     loadTags(res.response);
@@ -56,61 +56,86 @@
                 }
             });
         });
-        function loadTags(fileBuffer) {
-            if (!fileBuffer) return;
-            try {
-                const tags = ExifReader.load(fileBuffer, {expanded: true});
-                getComment(tags);
-            } catch(e) {
-                console.log(e);
-            }
+    }
+
+    function loadTags(fileBuffer) {
+        if (!fileBuffer) return;
+        try {
+            const tags = ExifReader.load(fileBuffer, {expanded: true});
+            const prompt = getPrompt(tags);
+            makeData(prompt);
+        } catch(e) {
+            console.log(e);
         }
     }
 
-    function getComment(tags) {
+    function getPrompt(tags) {
         // console.dir(JSON.parse(JSON.stringify(tags)));
 
         let com = ""
+        let prompt = {
+            positive: "",
+            negative: "",
+            others: ""
+        }
 
         // Exif
         if (tags.exif && tags.exif.UserComment) {
             com = decodeUnicode(tags.exif.UserComment.value);
-            extractPrompt(com);
-            return;
+            try {
+                prompt.positive = com.match(/([^]+)Negative prompt: /)[1];
+                prompt.negative = com.match(/Negative prompt: ([^]+)Steps: /)[1];
+                prompt.others = com.match(/(Steps: [^]+)/)[1];
+            } catch (e) {
+                console.log(com);
+                prompt.others = com;
+            }
+            return prompt;
         }
         // iTXt
         if (!tags.pngText) return;
         // A1111
         if (tags.pngText.parameters) {
             com = tags.pngText.parameters.description;
-            extractPrompt(com);
-            return;
+            try {
+                prompt.positive = com.match(/([^]+)Negative prompt: /)[1];
+                prompt.negative = com.match(/Negative prompt: ([^]+)Steps: /)[1];
+                prompt.others = com.match(/(Steps: [^]+)/)[1];
+            } catch (e) {
+                console.log(com);
+                prompt.others = com;
+            }
+            return prompt;
         }
         // NMKD
         if (tags.pngText.Dream) {
             com = tags.pngText.Dream.description;
             com += tags.pngText["sd-metadata"] ? "\r\n" + tags.pngText["sd-metadata"].description : "";
-            extractPrompt(com);
-            return;
+            try {
+                prompt.positive = com.match(/([^]+?)\[[^[]+\]/)[1];
+                prompt.negative = com.match(/\[([^[]+?)(\]|Steps: )/)[1];
+                prompt.others = com.match(/\]([^]+)/)[1];
+            } catch (e) {
+                console.log(com);
+                prompt.others = com;
+            }
+            return prompt;
         }
         // NAI
         if (tags.pngText.Software && tags.pngText.Software.description == "NovelAI") {
             const positive = tags.pngText.Description.description;
             const comment = tags.pngText.Comment.description.replaceAll(/\\u00a0/g, " ");
             const negative= JSON.parse(comment).uc;
-            console.dir(JSON.parse(comment));
+            // console.dir(JSON.parse(comment));
             let others = comment + "\r\n";
             others += tags.pngText.Software.description + "\r\n";
             others += tags.pngText.Title.description + "\r\n";
             others += tags.pngText.Source.description;
-            others += tags.pngText["Generation time"] ? "\r\n" + "Generation time: " + tags.pngText["Generation time"].description : "";
-            const prompt = {
-                positive: positive,
-                negative: negative,
-                others: others
-            }
-            makeData(prompt);
-            return;
+            others += tags.pngText["Generation time"] ? "\r\nGeneration time: " + tags.pngText["Generation time"].description : "";
+            prompt.positive = positive;
+            prompt.negative = negative;
+            prompt.others = others;
+            return prompt;
         }
 
         Object.keys(tags.pngText).forEach(tag => {
@@ -118,8 +143,8 @@
         });
 
         // console.log(com);
-        extractPrompt(com);
-        return;
+        prompt.others = com;
+        return prompt;
     }
 
     function decodeUnicode(array) {
@@ -137,19 +162,6 @@
         return decode;
     }
 
-    function extractPrompt(com) {
-        const positive = extractPositivePrompt(com);
-        const negative = extractNegativePrompt(com);
-        const others = extractOthers(com);
-        if (!positive && !negative && !others) return;
-        const prompt = {
-            positive: positive,
-            negative: negative,
-            others: others
-        }
-        makeData(prompt);
-    }
-
     function makeButton() {
         addStyle();
         const button = document.createElement("button");
@@ -160,10 +172,11 @@
     }
 
     function makeData(prompt) {
-        makeButton();
         const positive = prompt.positive;
         const negative = prompt.negative;
         const others = prompt.others;
+        if (!positive && !negative && !others) return;
+        makeButton();
         const container = document.createElement("div");
         container.id ="_gm_simv_container";
         const copybutton = location.protocol == "http:" ? "" : `<button class="_gm_simv_copybutton" type="button">copy</button>`;
@@ -236,46 +249,6 @@ img {
 ._gm_simv_copybutton {
     cursor: pointer; opacity: 0.5;
 }`});
-    }
-
-    function extractPositivePrompt(text) {
-        try {
-            let matchtext = 
-            text.match(/([^]+)Negative prompt: /) || 
-            text.match(/([^]+?)\[[^[]+\]/) || 
-            text.match(/([^]+)Steps: /) || 
-            text.match(/([^]+){"steps"/);
-            return matchtext[1];
-        } catch (e) {
-            console.log(text);
-            return "";
-        }
-    }
-
-    function extractNegativePrompt(text) {
-        try {
-            let matchtext = 
-            text.match(/Negative prompt: ([^]+)Steps: /) || 
-            text.match(/"uc": "([^]+)"}/) || 
-            text.match(/\[([^[]+?)(\]|Steps: )/);
-            return matchtext[1];
-        } catch (e) {
-            console.log(text);
-            return "";
-        }
-    }
-
-    function extractOthers(text) {
-        try {
-            let matchtext = 
-            text.match(/(Steps: [^]+)/) || 
-            text.match(/{("steps"[^]+)"uc": /) || 
-            text.match(/\]([^]+)/);
-            return matchtext[1];
-        } catch (e) {
-            console.log(text);
-            return text;
-        }
     }
 
     function showModal() {
